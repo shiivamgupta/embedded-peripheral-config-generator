@@ -1,0 +1,95 @@
+# Peripheral Configuration for STM32F4-Discovery
+# This file shows explicit configuration and cases where defaults are applied
+
+board:
+  name: "STM32F4-Discovery"
+  mcu: "STM32F407VG"
+  clock_freq: 168000000  # 168 MHz system clock
+
+gpio:
+  pins:
+    # explicit configuration with all parameters
+    - pin: "PA0"
+      direction: "input"
+      pull: "pull_up"
+      speed: "medium"
+      comment: "on-board user button (B1) input"
+
+    # minimal config - speed and pull will use defaults (medium, none)
+    - pin: "PD12"
+      direction: "output"
+      comment: "on-board green user LED (LD4)"
+
+    # uart pins with alternate function
+    - pin: "PA9"
+      direction: "output"
+      pull: "none"
+      speed: "high"
+      alt_function: GPIO_AF7_USART1
+      comment: "debug console TX"
+
+    - pin: "PA10"
+      direction: "input"
+      pull: "pull_up"
+      speed: "high"
+      alt_function: GPIO_AF7_USART1
+      comment: "debug console RX"
+
+    # i2c pins - speed will default to medium
+    - pin: "PB6"
+      direction: "output_open_drain"
+      pull: "none"
+      alt_function: GPIO_AF4_I2C1
+      comment: "i2c bus clock"
+
+    - pin: "PB7"
+      direction: "output_open_drain" 
+      pull: "none"
+      alt_function: GPIO_AF4_I2C1
+      comment: "i2c bus data"
+
+communication:
+  uart:
+    # explicit uart config
+    - instance: "USART1"
+      enabled: true
+      baudrate: 115200
+      data_bits: 8
+      parity: "none"
+      stop_bits: 1
+      tx_pin: "PA9"
+      rx_pin: "PA10"
+      comment: "debug console"
+
+  i2c:
+    # minimal i2c config - speed will default to 100000 Hz, enabled to true
+    - instance: "I2C1"
+      scl_pin: "PB6"
+      sda_pin: "PB7"
+      comment: "sensor bus"
+
+timers:
+  # explicit timer config
+  - instance: "TIM2"
+    enabled: true
+    mode: "timer"
+    prescaler: 84000
+    period: 1000
+    comment: "system tick (1ms tick, 1s overflow)"
+
+  # minimal timer config - enabled and mode will get defaults
+  - instance: "TIM3"
+    prescaler: 168
+    period: 1000
+    channel: 1
+    duty_cycle: 50
+    comment: "pwm motor control (uses defaults)"
+
+peripherals:
+  # sample peripheral on i2c bus
+  - name: "temperature_sensor"
+    type: "i2c_device"
+    bus: "I2C1"
+    address: 0x48
+    enabled: true
+    comment: "TMP117 temperature sensor"
